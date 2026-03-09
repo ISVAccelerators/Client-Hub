@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Engagement Timeline</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+  :root {
+    /* ╔═══════════════════════════════════════════════════════╗
+       ║  BRANDING — Update these for each client              ║
+       ╚═══════════════════════════════════════════════════════╝ */
+    --navy: #052D60;        /* ISV Accelerators primary           */
+    --sky: #0D9DDA;         /* ISV Accelerators secondary         */
+    --orange: #FE5D2E;      /* ISV Accelerators accent            */
+    --client-accent: #D4A843; /* Client brand color (gold for Goldfinch, etc.) */
+    --client-accent-light: #F5E6C0;
+
+    /* Phase colors — change to match client brand if desired */
+    --phase1: #0D9DDA;
+    --phase1-light: rgba(13, 157, 218, 0.12);
+    --phase2: #052D60;
+    --phase2-light: rgba(5, 45, 96, 0.08);
+    --phase3: #FE5D2E;
+    --phase3-light: rgba(254, 93, 46, 0.08);
+    --milestone: #D4A843;
+
+    /* Neutrals — generally don't need to change */
+    --white: #FFFFFF;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-400: #94A3B8;
+    --gray-500: #64748B;
+    --gray-600: #475569;
+    --gray-700: #334155;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--white);
+    color: var(--gray-700);
+    padding: 40px;
+    min-width: 1100px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--navy);
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-logo {
+    width: 44px; height: 44px;
+    background: var(--navy);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white);
+    font-weight: 700; font-size: 18px;
+  }
+  .header h1 {
+    font-size: 22px; font-weight: 700; color: var(--navy);
+    line-height: 1.2;
+  }
+  .header h1 span { color: var(--client-accent); }
+  .header-meta {
+    text-align: right; font-size: 13px; color: var(--gray-500);
+    line-height: 1.6;
+  }
+  .header-meta strong { color: var(--navy); }
+
+  /* Phase Legend */
+  .legend {
+    display: flex; gap: 24px; margin-bottom: 28px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500; color: var(--gray-600);
+  }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+  .legend-diamond {
+    width: 12px; height: 12px; transform: rotate(45deg);
+    background: var(--milestone); border: 2px solid var(--client-accent);
+  }
+
+  /* Chart Container */
+  .chart-container {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  /* Timeline Header */
+  .timeline-header {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    background: var(--navy);
+    color: var(--white);
+  }
+  .timeline-header .label-col {
+    padding: 14px 20px;
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .month-headers {
+    display: grid;
+    /* Grid columns set dynamically by JS based on number of months */
+  }
+  .month-header {
+    text-align: center;
+    padding: 8px 0 2px;
+    font-size: 14px; font-weight: 600;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .month-header:last-child { border-right: none; }
+  .week-headers { display: grid; }
+  .week-group {
+    display: grid;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .week-group:last-child { border-right: none; }
+  .week-label {
+    text-align: center;
+    padding: 4px 0 8px;
+    font-size: 10px; font-weight: 500;
+    opacity: 0.7;
+  }
+
+  /* Phase Groups */
+  .phase-group { border-bottom: 1px solid var(--gray-200); }
+  .phase-group:last-child { border-bottom: none; }
+
+  .phase-header-row {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .phase-header-row:hover { filter: brightness(0.97); }
+
+  .phase-label {
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 700;
+    border-right: 1px solid var(--gray-200);
+  }
+  .phase-label .phase-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .phase-label .phase-dates {
+    font-weight: 400; font-size: 11px; color: var(--gray-400); margin-left: auto;
+  }
+  .phase-label .chevron {
+    font-size: 11px; color: var(--gray-400); transition: transform 0.2s; margin-left: 4px;
+  }
+  .phase-group.collapsed .chevron { transform: rotate(-90deg); }
+
+  .phase-bar-area { position: relative; height: 44px; }
+  .phase-bar {
+    position: absolute; height: 8px; top: 50%; transform: translateY(-50%);
+    border-radius: 4px; opacity: 0.35;
+  }
+
+  /* Deliverable Rows */
+  .deliverable-rows { overflow: hidden; transition: max-height 0.3s ease; }
+  .phase-group.collapsed .deliverable-rows { max-height: 0 !important; }
+
+  .deliverable-row {
+    display: grid; grid-template-columns: 260px 1fr;
+    border-top: 1px solid var(--gray-100); transition: background 0.15s;
+  }
+  .deliverable-row:hover { background: var(--gray-50); }
+
+  .deliverable-label {
+    padding: 10px 20px 10px 44px;
+    font-size: 12px; font-weight: 500; color: var(--gray-600);
+    border-right: 1px solid var(--gray-200);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .deliverable-label .del-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white); flex-shrink: 0;
+  }
+  .deliverable-label .del-date {
+    margin-left: auto; font-size: 10px; color: var(--gray-400);
+    font-weight: 400; white-space: nowrap;
+  }
+
+  .bar-area { position: relative; height: 40px; }
+
+  /* Grid lines */
+  .grid-lines {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: grid; pointer-events: none;
+  }
+  .grid-line { border-right: 1px solid var(--gray-100); }
+  .grid-line:last-child { border-right: none; }
+
+  /* Today marker */
+  .today-marker {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: var(--orange); z-index: 10; pointer-events: none;
+  }
+  .today-marker-labeled::after {
+    content: 'TODAY'; position: absolute;
+    top: -20px; left: 50%; transform: translateX(-50%);
+    font-size: 9px; font-weight: 700; color: var(--orange);
+    letter-spacing: 0.05em; white-space: nowrap;
+  }
+
+  /* Bars */
+  .bar {
+    position: absolute; height: 22px; top: 50%; transform: translateY(-50%);
+    border-radius: 6px; display: flex; align-items: center;
+    padding: 0 8px; font-size: 10px; font-weight: 600; color: var(--white);
+    cursor: default; z-index: 2;
+    transition: filter 0.15s, box-shadow 0.15s;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .bar:hover { filter: brightness(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5; }
+
+  /* Milestone diamonds */
+  .milestone {
+    position: absolute; top: 50%; transform: translateY(-50%) rotate(45deg);
+    width: 14px; height: 14px; background: var(--milestone);
+    border: 2px solid var(--client-accent); z-index: 3; cursor: default;
+  }
+  .milestone:hover { box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.3); }
+
+  /* Tooltip */
+  .tooltip {
+    display: none; position: fixed; background: var(--navy); color: var(--white);
+    padding: 10px 14px; border-radius: 8px; font-size: 12px; line-height: 1.5;
+    z-index: 100; pointer-events: none; max-width: 280px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .tooltip.visible { display: block; }
+  .tooltip strong { font-weight: 600; }
+
+  /* Summary Cards */
+  .summary {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-top: 28px;
+  }
+  .summary-card {
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .summary-card h3 {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--gray-400); margin-bottom: 6px;
+  }
+  .summary-card .value { font-size: 24px; font-weight: 700; color: var(--navy); }
+  .summary-card .detail { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 24px; padding-top: 16px;
+    border-top: 1px solid var(--gray-200);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: var(--gray-400);
+  }
+
+  @media print {
+    body { padding: 20px; min-width: auto; }
+    .bar:hover { filter: none; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════════════════════════════════════════╗
+     ║  HOW TO USE THIS TEMPLATE                                       ║
+     ║                                                                  ║
+     ║  1. Update the CONFIG object below with client details            ║
+     ║  2. Update the PHASES array with deliverables & dates             ║
+     ║  3. Update the SUMMARY CARDS section at the bottom                ║
+     ║  4. Optionally tweak CSS variables at the top for brand colors    ║
+     ║                                                                  ║
+     ║  Everything else auto-generates from the data.                    ║
+     ╚═══════════════════════════════════════════════════════════════════╝ -->
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo" id="headerLogo"></div>
+    <h1 id="headerTitle"></h1>
+  </div>
+  <div class="header-meta" id="headerMeta"></div>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="chart-container">
+  <div class="timeline-header">
+    <div class="label-col">Deliverable</div>
+    <div style="overflow:hidden;">
+      <div class="month-headers" id="monthHeaders"></div>
+      <div class="week-headers" id="weekHeaders"></div>
+    </div>
+  </div>
+  <div id="chartBody"></div>
+</div>
+
+<!-- Summary Cards — UPDATE THESE FOR EACH CLIENT -->
+<div class="summary" id="summaryCards"></div>
+
+<div class="footer">
+  <span id="footerLabel"></span>
+  <span>Updated: <span id="updateDate"></span></span>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║  CONFIG — UPDATE THIS SECTION FOR EACH NEW CLIENT                ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+const CONFIG = {
+  clientName: 'Client Name',           // e.g., 'Goldfinch Cloud Solutions'
+  clientInitial: 'C',                  // Single letter for the logo badge
+  subtitle: '3-Month Engagement Timeline',
+  partnerLine: 'Fractional Alliances Leadership',
+  dateRange: 'Month DD – Month DD, YYYY',   // e.g., 'March 9 – May 31, 2026'
+  tagline: 'ISV Accelerators × Client Name',
+  footerLabel: 'ISV Accelerators — Client Name Engagement',
+
+  // Timeline boundaries (inclusive)
+  startDate: '2026-03-09',  // YYYY-MM-DD — first day of engagement
+  endDate:   '2026-05-31',  // YYYY-MM-DD — last day of engagement
+
+  // Months to show in header — label + how many weeks in that month
+  months: [
+    { label: 'March 2026',  weeks: 4 },
+    { label: 'April 2026',  weeks: 4 },
+    { label: 'May 2026',    weeks: 4 },
+  ],
+};
+
+/* Summary cards — update values and labels for each client */
+const SUMMARY = [
+  { title: 'Duration',      value: '12 Weeks',  detail: 'March 9 – May 31, 2026' },
+  { title: 'Deliverables',  value: '10',        detail: 'Across 3 phases' },
+  { title: 'Key Metric 1',  value: '—',         detail: 'Description' },
+  { title: 'Key Metric 2',  value: '—',         detail: 'Description' },
+];
+
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║  PHASES & DELIVERABLES — UPDATE FOR EACH CLIENT                  ║
+   ║                                                                   ║
+   ║  Each phase has:                                                  ║
+   ║    name        — Display name (shown on left sidebar)             ║
+   ║    dates       — Human-readable date range                        ║
+   ║    phase       — 1, 2, or 3 (controls color)                     ║
+   ║    start / end — YYYY-MM-DD boundaries for the phase bar          ║
+   ║    deliverables — array of { num, name, start, end, due }         ║
+   ║    milestones   — array of { name, date }                         ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+const PHASES = [
+  {
+    name: 'Phase 1: Foundation',
+    dates: 'Mar 9 – 31',
+    phase: 1,
+    start: '2026-03-09',
+    end: '2026-03-31',
+    deliverables: [
+      { num: 1, name: 'Deliverable 1', start: '2026-03-09', end: '2026-03-21', due: 'Mar 21' },
+      { num: 2, name: 'Deliverable 2', start: '2026-03-14', end: '2026-03-31', due: 'Mar 31' },
+      { num: 3, name: 'Deliverable 3', start: '2026-03-17', end: '2026-03-31', due: 'Mar 31' },
+    ],
+    milestones: [
+      { name: 'Milestone 1', date: '2026-03-17' },
+    ]
+  },
+  {
+    name: 'Phase 2: Build',
+    dates: 'Apr 1 – 30',
+    phase: 2,
+    start: '2026-04-01',
+    end: '2026-04-30',
+    deliverables: [
+      { num: 4, name: 'Deliverable 4', start: '2026-04-01', end: '2026-04-30', due: 'Apr 30' },
+      { num: 5, name: 'Deliverable 5', start: '2026-04-01', end: '2026-04-30', due: 'Apr 30' },
+      { num: 6, name: 'Deliverable 6', start: '2026-04-07', end: '2026-04-30', due: 'Apr 30' },
+    ],
+    milestones: []
+  },
+  {
+    name: 'Phase 3: Activate',
+    dates: 'May 1 – 31',
+    phase: 3,
+    start: '2026-05-01',
+    end: '2026-05-31',
+    deliverables: [
+      { num: 7, name: 'Deliverable 7', start: '2026-05-01', end: '2026-05-31', due: 'May 31' },
+      { num: 8, name: 'Deliverable 8', start: '2026-05-01', end: '2026-05-31', due: 'May 31' },
+      { num: 9, name: 'Deliverable 9', start: '2026-05-18', end: '2026-05-31', due: 'May 31' },
+    ],
+    milestones: [
+      { name: 'Final Readout', date: '2026-05-31' },
+    ]
+  }
+];
+
+
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║  ENGINE — You should NOT need to edit below this line             ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+const START = new Date(CONFIG.startDate + 'T00:00:00');
+const END   = new Date(CONFIG.endDate + 'T00:00:00');
+const TOTAL_DAYS = Math.ceil((END - START) / 86400000);
+const TOTAL_WEEKS = CONFIG.months.reduce((s, m) => s + m.weeks, 0);
+
+function dayOffset(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return Math.max(0, Math.ceil((d - START) / 86400000));
+}
+function pct(days) { return (days / TOTAL_DAYS * 100).toFixed(2) + '%'; }
+
+const phaseColors = {
+  1: { bar: 'var(--phase1)', bg: 'var(--phase1-light)', dot: 'var(--phase1)' },
+  2: { bar: 'var(--phase2)', bg: 'var(--phase2-light)', dot: 'var(--phase2)' },
+  3: { bar: 'var(--phase3)', bg: 'var(--phase3-light)', dot: 'var(--phase3)' },
+};
+
+// ── Header ──
+document.getElementById('headerLogo').textContent = CONFIG.clientInitial;
+document.getElementById('headerTitle').innerHTML =
+  `${CONFIG.clientName}<br><span>${CONFIG.subtitle}</span>`;
+document.getElementById('headerMeta').innerHTML =
+  `<strong>${CONFIG.partnerLine}</strong><br>${CONFIG.dateRange}<br>${CONFIG.tagline}`;
+document.getElementById('footerLabel').textContent = CONFIG.footerLabel;
+document.getElementById('updateDate').textContent = new Date().toLocaleDateString('en-US', {
+  month: 'long', day: 'numeric', year: 'numeric'
+});
+
+// ── Legend ──
+const legendEl = document.getElementById('legend');
+PHASES.forEach(p => {
+  const c = phaseColors[p.phase];
+  legendEl.innerHTML += `<div class="legend-item"><div class="legend-swatch" style="background:${c.dot};"></div>${p.name}</div>`;
+});
+legendEl.innerHTML += `<div class="legend-item"><div class="legend-diamond"></div>Key Milestone</div>`;
+
+// ── Month & Week Headers ──
+const monthHeadersEl = document.getElementById('monthHeaders');
+const weekHeadersEl = document.getElementById('weekHeaders');
+monthHeadersEl.style.gridTemplateColumns = `repeat(${CONFIG.months.length}, 1fr)`;
+weekHeadersEl.style.gridTemplateColumns = `repeat(${CONFIG.months.length}, 1fr)`;
+
+let weekNum = 1;
+CONFIG.months.forEach(m => {
+  monthHeadersEl.innerHTML += `<div class="month-header">${m.label}</div>`;
+  let weekGroupHTML = `<div class="week-group" style="grid-template-columns:repeat(${m.weeks},1fr);">`;
+  for (let w = 0; w < m.weeks; w++) {
+    weekGroupHTML += `<div class="week-label">W${weekNum++}</div>`;
+  }
+  weekGroupHTML += '</div>';
+  weekHeadersEl.innerHTML += weekGroupHTML;
+});
+
+// ── Chart Body ──
+const chartBody = document.getElementById('chartBody');
+const gridCols = TOTAL_WEEKS;
+
+PHASES.forEach(phase => {
+  const c = phaseColors[phase.phase];
+  const group = document.createElement('div');
+  group.className = 'phase-group';
+
+  const phStart = dayOffset(phase.start);
+  const phEnd = dayOffset(phase.end);
+  const phWidth = phEnd - phStart;
+
+  group.innerHTML = `
+    <div class="phase-header-row" style="background:${c.bg};" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="phase-label">
+        <div class="phase-dot" style="background:${c.dot}"></div>
+        ${phase.name}
+        <span class="phase-dates">${phase.dates}</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="bar-area">
+        <div class="grid-lines" style="grid-template-columns:repeat(${gridCols},1fr);">${'<div class="grid-line"></div>'.repeat(gridCols)}</div>
+        <div class="phase-bar" style="left:${pct(phStart)};width:${pct(phWidth)};background:${c.bar};"></div>
+      </div>
+    </div>
+    <div class="deliverable-rows" style="max-height:${(phase.deliverables.length + phase.milestones.length) * 50}px;"></div>
+  `;
+
+  const rowsContainer = group.querySelector('.deliverable-rows');
+
+  phase.deliverables.forEach(d => {
+    const dStart = dayOffset(d.start);
+    const dEnd = dayOffset(d.end);
+    const dWidth = Math.max(dEnd - dStart, 1);
+    const row = document.createElement('div');
+    row.className = 'deliverable-row';
+    row.innerHTML = `
+      <div class="deliverable-label">
+        <div class="del-num" style="background:${c.bar};">${d.num}</div>
+        <span>${d.name}</span>
+        <span class="del-date">${d.due}</span>
+      </div>
+      <div class="bar-area">
+        <div class="grid-lines" style="grid-template-columns:repeat(${gridCols},1fr);">${'<div class="grid-line"></div>'.repeat(gridCols)}</div>
+        <div class="bar" style="left:${pct(dStart)};width:${pct(dWidth)};background:${c.bar};"
+             data-tip="<strong>#${d.num} — ${d.name}</strong><br>Start: ${d.start}<br>Due: ${d.due}<br>Phase: ${phase.name}"></div>
+      </div>
+    `;
+    rowsContainer.appendChild(row);
+  });
+
+  phase.milestones.forEach(m => {
+    const mDay = dayOffset(m.date);
+    const row = document.createElement('div');
+    row.className = 'deliverable-row';
+    row.innerHTML = `
+      <div class="deliverable-label" style="font-style:italic; color:var(--client-accent);">
+        <div class="del-num" style="background:var(--milestone); transform:rotate(45deg); border-radius:2px; width:16px; height:16px; font-size:0;"></div>
+        <span>${m.name}</span>
+        <span class="del-date">${m.date.slice(5)}</span>
+      </div>
+      <div class="bar-area">
+        <div class="grid-lines" style="grid-template-columns:repeat(${gridCols},1fr);">${'<div class="grid-line"></div>'.repeat(gridCols)}</div>
+        <div class="milestone" style="left:calc(${pct(mDay)} - 7px);"
+             data-tip="<strong>${m.name}</strong><br>Date: ${m.date}"></div>
+      </div>
+    `;
+    rowsContainer.appendChild(row);
+  });
+
+  // Today marker
+  const today = new Date();
+  const todayOff = Math.ceil((today - START) / 86400000);
+  if (todayOff >= 0 && todayOff <= TOTAL_DAYS) {
+    let first = true;
+    group.querySelectorAll('.bar-area').forEach(area => {
+      const m = document.createElement('div');
+      m.className = 'today-marker' + (first ? ' today-marker-labeled' : '');
+      m.style.left = pct(todayOff);
+      area.appendChild(m);
+      first = false;
+    });
+  }
+
+  chartBody.appendChild(group);
+});
+
+// ── Summary Cards ──
+const summaryEl = document.getElementById('summaryCards');
+SUMMARY.forEach(s => {
+  summaryEl.innerHTML += `
+    <div class="summary-card">
+      <h3>${s.title}</h3>
+      <div class="value">${s.value}</div>
+      <div class="detail">${s.detail}</div>
+    </div>`;
+});
+
+// ── Tooltips ──
+const tooltip = document.getElementById('tooltip');
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('[data-tip]');
+  if (el) { tooltip.innerHTML = el.dataset.tip; tooltip.classList.add('visible'); }
+});
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('[data-tip]')) tooltip.classList.remove('visible');
+});
+document.addEventListener('mousemove', e => {
+  if (tooltip.classList.contains('visible')) {
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+  }
+});
+</script>
+</body>
+</html>
