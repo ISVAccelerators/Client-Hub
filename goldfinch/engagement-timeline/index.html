@@ -144,7 +144,7 @@
 
   /* Phase Groups */
   .phase-group { border-bottom: 1px solid var(--gray-200); }
-  .phase-'roup:last-child { border-bottom: none; }
+  .phase-group:last-child { border-bottom: none; }
 
   .phase-header-row {
     display: grid;
@@ -296,29 +296,26 @@
     box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.3);
   }
 
-  /* Tooltips */
-  .bar-tooltip, .milestone-tooltip {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%; transform: translateX(-50%);
+  /* Tooltip */
+  .tooltip {
+    display: none;
+    position: fixed;
     background: var(--navy);
     color: var(--white);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
     z-index: 100;
+    pointer-events: none;
+    max-width: 280px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   }
-  .bar:hover .bar-tooltip,
-  .milestone:hover .milestone-tooltip {
-    opacity: 1;
-  }
+  .tooltip.visible { display: block; }
+  .tooltip strong { font-weight: 600; }
 
   /* Summary Cards */
-  .summary-cards {
+  .summary {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
@@ -328,37 +325,33 @@
     background: var(--gray-50);
     border: 1px solid var(--gray-200);
     border-radius: 10px;
-    padding: 20px 24px;
-    text-align: center;
+    padding: 18px 20px;
   }
-  .summary-card .card-label {
+  .summary-card h3 {
     font-size: 11px; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.05em; color: var(--gray-400);
     margin-bottom: 6px;
   }
-  .summary-card .card-value {
+  .summary-card .value {
     font-size: 24px; font-weight: 700; color: var(--navy);
   }
-  .summary-card .card-sub {
-    font-size: 11px; color: var(--gray-400); margin-top: 2px;
+  .summary-card .detail {
+    font-size: 11px; color: var(--gray-500); margin-top: 4px;
   }
 
   /* Footer */
   .footer {
-    margin-top: 32px;
-    padding-top: 16px;
+    margin-top: 24px; padding-top: 16px;
     border-top: 1px solid var(--gray-200);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--gray-400);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: var(--gray-400);
   }
-  .footer-brand {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .footer-brand .dot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--sky);
+  .footer a { color: var(--sky); text-decoration: none; }
+
+  /* Print */
+  @media print {
+    body { padding: 20px; min-width: auto; }
+    .bar:hover { filter: none; box-shadow: none; }
   }
 </style>
 </head>
@@ -366,26 +359,40 @@
 
 <div class="header">
   <div class="header-left">
-    <div class="header-logo">IA</div>
-    <h1><span>Goldfinch Cloud Solutions</span><br>3-Month Engagement Timeline</h1>
+    <div class="header-logo">G</div>
+    <h1>Goldfinch Cloud Solutions<br><span>3-Month Engagement Timeline</span></h1>
   </div>
   <div class="header-meta">
-    <strong>Mar 9 – May 31, 2026</strong><br>
-    Prepared by ISV Accelerators
+    <strong>Fractional Alliances Leadership</strong><br>
+    March 9 – May 31, 2026<br>
+    ISV Accelerators × Goldfinch
   </div>
 </div>
 
 <div class="legend">
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--phase1)"></div>Phase 1: Foundation</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--phase2)"></div>Phase 2: Build</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--phase3)"></div>Phase 3: Activate &amp; Measure</div>
-  <div class="legend-item"><div class="legend-diamond"></div>Milestone</div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--phase1);"></div>
+    Phase 1: Foundation
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--phase2);"></div>
+    Phase 2: Build
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background: var(--phase3);"></div>
+    Phase 3: Activate & Measure
+  </div>
+  <div class="legend-item">
+    <div class="legend-diamond"></div>
+    Key Milestone
+  </div>
 </div>
 
 <div class="chart-container">
+  <!-- Timeline Header -->
   <div class="timeline-header">
-    <div class="label-col">Deliverables</div>
-    <div>
+    <div class="label-col">Deliverable</div>
+    <div style="overflow:hidden;">
       <div class="month-headers">
         <div class="month-header">March 2026</div>
         <div class="month-header">April 2026</div>
@@ -414,22 +421,44 @@
     </div>
   </div>
 
-  <!-- Phase 1: Foundation -->
-  <div class="phase-group" id="phase1">
-    <div class="phase-header-row phase-1" onclick="togglePhase('phase1')">
-      <div class="phase-label">
-        <div class="phase-dot" style="background:var(--phase1)"></div>
-        Phase 1: Foundation
-        <span class="phase-dates">Mar 9 – Mar 31</span>
-        <span class="chevron">▼</span>
-      </div>
-      <div class="phase-bar-area">
-        <div class="grid-lines"><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div></div>
-        <div class="phase-bar" style="left:0%;width:27.7%;background:var(--phase1-bar)"></div>
-      </div>
-    </div>
-    <div class="deliverable-rows" style="max-height:500px">
-��─ Data ──
+  <!-- Chart Body -->
+  <div id="chartBody"></div>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary">
+  <div class="summary-card">
+    <h3>Duration</h3>
+    <div class="value">12 Weeks</div>
+    <div class="detail">March 9 – May 31, 2026</div>
+  </div>
+  <div class="summary-card">
+    <h3>Deliverables</h3>
+    <div class="value">10</div>
+    <div class="detail">Across 3 phases</div>
+  </div>
+  <div class="summary-card">
+    <h3>Target AEs</h3>
+    <div class="value">15–20</div>
+    <div class="detail">Aligned & educated on Goldfinch</div>
+  </div>
+  <div class="summary-card">
+    <h3>Pipeline Goal</h3>
+    <div class="value">1–3</div>
+    <div class="detail">Co-sell opportunities entered</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>ISV Accelerators — Goldfinch Cloud Solutions Engagement</span>
+  <span>Updated: <span id="updateDate"></span></span>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+  // ── Data ──
   // Timeline: March 9 (day 0) to May 31 (day 83)
   const START = new Date(2026, 2, 9); // March 9
   const END   = new Date(2026, 4, 31); // May 31
