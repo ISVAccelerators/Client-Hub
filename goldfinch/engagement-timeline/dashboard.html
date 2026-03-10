@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goldfinch Cloud Solutions â Interactive Engagement Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --navy: #052D60;
+    --sky: #0D9DDA;
+    --orange: #FE5D2E;
+    --gold: #D4A843;
+    --phase1: #0D9DDA;
+    --phase2: #052D60;
+    --phase3: #FE5D2E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #fff;
+    color: #334155;
+    padding: 24px 28px;
+    min-width: 900px;
+  }
+
+  /* Header */
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; padding-bottom: 20px;
+    border-bottom: 3px solid var(--navy);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo {
+    width: 42px; height: 42px; background: var(--navy); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 17px;
+  }
+  .header-title { font-size: 20px; font-weight: 700; color: var(--navy); line-height: 1.2; }
+  .header-subtitle { font-size: 14px; font-weight: 600; color: var(--gold); }
+  .header-meta { text-align: right; font-size: 12px; color: #64748B; line-height: 1.7; }
+  .header-meta strong { color: var(--navy); }
+
+  /* Summary Cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .summary-card {
+    background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;
+    padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+  }
+  .ring-wrap { position: relative; }
+  .ring-label {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 12px; font-weight: 700;
+  }
+  .card-meta-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; color: #94A3B8; margin-bottom: 2px;
+  }
+  .card-meta-value { font-size: 18px; font-weight: 700; color: var(--navy); }
+  .card-meta-detail { font-size: 10px; color: #64748B; }
+  .card-meta-sm { font-size: 13px; font-weight: 600; color: var(--navy); }
+
+  /* Legend + Filter */
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .legend { display: flex; gap: 20px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #475569; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-diamond { width: 10px; height: 10px; background: var(--gold); transform: rotate(45deg); }
+  .filter-bar { display: flex; gap: 6px; }
+  .filter-btn {
+    padding: 4px 12px; border-radius: 6px; border: 1px solid #E2E8F0;
+    background: #fff; color: #64748B; font-size: 11px; font-weight: 500;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .filter-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  /* Chart */
+  .chart { border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+  /* Chart header */
+  .chart-header {
+    display: grid; grid-template-columns: 240px 1fr;
+    background: var(--navy); color: #fff;
+  }
+  .chart-header .label-col {
+    padding: 12px 16px; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    border-right: 1px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center;
+  }
+  .month-row { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .month-cell {
+    text-align: center; padding: 8px 0 2px; font-size: 13px; font-weight: 600;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .month-cell:last-child { border-right: none; }
+  .week-row { display: grid; grid-template-columns: repeat(12, 1fr); }
+  .week-cell { text-align: center; padding: 2px 0 8px; font-size: 9px; font-weight: 500; opacity: 0.65; }
+
+  /* Phase group */
+  .phase-group { border-bottom: 1px solid #E2E8F0; }
+  .phase-group:last-child { border-bottom: none; }
+
+  .phase-header {
+    display: grid; grid-template-columns: 240px 1fr; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .phase-label-cell {
+    padding: 11px 16px; display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; border-right: 1px solid #E2E8F0; color: var(--navy);
+  }
+  .phase-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .phase-dates { margin-left: auto; font-size: 10px; color: #94A3B8; font-weight: 400; }
+  .phase-chevron {
+    font-size: 10px; color: #94A3B8; transition: transform 0.2s; margin-left: 4px;
+  }
+  .phase-chevron.collapsed { transform: rotate(-90deg); }
+
+  .bar-area { position: relative; height: 42px; }
+  .grid-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: grid; grid-template-columns: repeat(12, 1fr); pointer-events: none;
+  }
+  .grid-col { border-right: 1px solid #F1F5F9; }
+  .grid-col.month-border { border-right: 1px solid #E2E8F0; }
+
+  .phase-bar {
+    position: absolute; height: 8px; top: 50%; transform: translateY(-50%);
+    border-radius: 4px; opacity: 0.3;
+  }
+  .today-line {
+    position: absolute; top: 0; bottom: 0; width: 2px; background: var(--orange);
+    z-index: 10; pointer-events: none;
+  }
+
+  /* Task rows */
+  .task-rows { overflow: hidden; transition: max-height 0.3s ease; }
+  .task-row {
+    display: grid; grid-template-columns: 240px 1fr;
+    border-top: 1px solid #F1F5F9; transition: background 0.12s; cursor: pointer;
+  }
+  .task-row:hover { background: #FAFBFC; }
+  .task-row.selected { background: #F8FAFC; }
+
+  .task-label-cell {
+    padding: 8px 16px 8px 40px; display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; color: #475569;
+    border-right: 1px solid #E2E8F0;
+  }
+  .task-num {
+    width: 20px; height: 20px; border-radius: 50%; color: #fff;
+    font-size: 10px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .task-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .bar-area-task { position: relative; height: 40px; }
+
+  .task-bar {
+    position: absolute; height: 22px; top: 50%; transform: translateY(-50%);
+    border-radius: 6px; display: flex; align-items: center; padding-left: 6px;
+    font-size: 9px; font-weight: 600; color: #fff; z-index: 2;
+    transition: all 0.2s; overflow: hidden; white-space: nowrap;
+  }
+  .task-bar:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .task-bar.not-started { opacity: 0.5; }
+  .task-bar.complete { background: #10B981 !important; opacity: 1; }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 12px; border: none;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all 0.15s; white-space: nowrap;
+  }
+  .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-badge.ns { background: #F1F5F9; color: #64748B; }
+  .status-badge.ns .dot { background: #94A3B8; }
+  .status-badge.ip { background: #DBEAFE; color: #1D4ED8; }
+  .status-badge.ip .dot { background: #3B82F6; }
+  .status-badge.cp { background: #D1FAE5; color: #065F46; }
+  .status-badge.cp .dot { background: #10B981; }
+
+  /* Milestone row */
+  .milestone-label {
+    padding: 8px 16px 8px 40px; display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; font-style: italic; color: var(--gold);
+    border-right: 1px solid #E2E8F0;
+  }
+  .milestone-diamond-sm {
+    width: 14px; height: 14px; background: var(--gold); transform: rotate(45deg);
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .milestone-diamond {
+    position: absolute; top: 50%; transform: translate(-50%, -50%) rotate(45deg);
+    width: 14px; height: 14px; background: var(--gold); border: 2px solid #B8922E; z-index: 3;
+  }
+  .milestone-date { margin-left: auto; font-size: 10px; font-weight: 400; color: #94A3B8; }
+
+  /* Detail panel */
+  .detail-panel {
+    margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0;
+    border-radius: 10px; padding: 16px 20px; display: flex; gap: 24px; align-items: center;
+  }
+  .detail-left { display: flex; align-items: center; gap: 10px; }
+  .detail-num {
+    width: 28px; height: 28px; border-radius: 50%; color: #fff;
+    font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .detail-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .detail-sub { font-size: 11px; color: #64748B; }
+  .detail-actions { margin-left: auto; display: flex; gap: 8px; }
+  .detail-btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .detail-btn.active-ns { border: 1px solid #94A3B8; background: #F1F5F9; color: #64748B; }
+  .detail-btn.active-ip { border: 1px solid #3B82F6; background: #DBEAFE; color: #1D4ED8; }
+  .detail-btn.active-cp { border: 1px solid #10B981; background: #D1FAE5; color: #065F46; }
+  .detail-btn.inactive { border: 1px solid #E2E8F0; background: #fff; color: #64748B; }
+
+  /* Footer */
+  .footer {
+    margin-top: 20px; padding-top: 14px; border-top: 1px solid #E2E8F0;
+    display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8;
+  }
+  .footer .today-indicator { color: var(--orange); font-weight: 600; }
+
+  @media print { body { padding: 20px; min-width: auto; } }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ââ DATA ââ
+const ENGAGEMENT_START = new Date(2026, 2, 9);
+const ENGAGEMENT_END   = new Date(2026, 4, 31);
+const TOTAL_DAYS = Math.ceil((ENGAGEMENT_END - ENGAGEMENT_START) / 86400000);
+
+const phases = [
+  { id: 1, name: 'Phase 1: Foundation', shortName: 'Foundation', dates: 'Mar 9 â 31', color: '#0D9DDA', start: '2026-03-09', end: '2026-03-31' },
+  { id: 2, name: 'Phase 2: Build', shortName: 'Build', dates: 'Apr 1 â 30', color: '#052D60', start: '2026-04-01', end: '2026-04-30' },
+  { id: 3, name: 'Phase 3: Activate & Measure', shortName: 'Activate', dates: 'May 1 â 31', color: '#FE5D2E', start: '2026-05-01', end: '2026-05-31' },
+];
+
+const tasks = [
+  { id: 1, num: 1, name: 'Asset Audit', start: '2026-03-09', end: '2026-03-13', phase: 1, status: 'Not Started' },
+  { id: 2, num: 2, name: 'SF AE Territory Map', start: '2026-03-16', end: '2026-03-18', phase: 1, status: 'Not Started' },
+  { id: 3, num: 3, name: 'Competitive Positioning â Rootstock', start: '2026-03-20', end: '2026-03-31', phase: 1, status: 'Not Started' },
+  { id: 4, num: 4, name: 'AE Outreach Playbook', start: '2026-04-01', end: '2026-04-30', phase: 2, status: 'Not Started' },
+  { id: 5, num: 5, name: 'SI Partner Target List', start: '2026-04-01', end: '2026-04-30', phase: 2, status: 'Not Started' },
+  { id: 6, num: 6, name: 'Co-Sell Battle Card', start: '2026-04-07', end: '2026-04-30', phase: 2, status: 'Not Started' },
+  { id: 7, num: 7, name: 'Customer Leave-Behind', start: '2026-04-14', end: '2026-04-30', phase: 2, status: 'Not Started' },
+  { id: 8, num: 8, name: 'AE Activation Campaign', start: '2026-05-01', end: '2026-05-31', phase: 3, status: 'Not Started' },
+  { id: 9, num: 9, name: 'SI Partner Outreach', start: '2026-05-01', end: '2026-05-31', phase: 3, status: 'Not Started' },
+  { id: 10, num: 10, name: 'Engagement Readout + Go/No-Go', start: '2026-05-18', end: '2026-05-31', phase: 3, status: 'Not Started' },
+];
+
+const milestones = [
+  { name: 'Lunch & Learn (TBC)', date: '2026-03-17', phase: 1 },
+  { name: 'Final Readout & Go/No-Go', date: '2026-05-31', phase: 3 },
+];
+
+// ââ HELPERS ââ
+function dayOffset(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return Math.max(0, Math.ceil((d - ENGAGEMENT_START) / 86400000));
+}
+function pct(days) { return (days / TOTAL_DAYS * 100); }
+function fmtDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+const today = new Date();
+const todayOff = Math.ceil((today - ENGAGEMENT_START) / 86400000);
+const todayPct = pct(todayOff);
+const todayInRange = todayOff >= 0 && todayOff <= TOTAL_DAYS;
+const currentWeek = Math.min(12, Math.max(1, Math.ceil(todayOff / 7)));
+
+// ââ STATE ââ
+let state = {
+  tasks: tasks.map(t => ({...t})),
+  expanded: { 1: true, 2: true, 3: true },
+  selected: null,
+  filter: 'All',
+};
+
+function getStats() {
+  const result = {};
+  phases.forEach(p => {
+    const pt = state.tasks.filter(t => t.phase === p.id);
+    const c = pt.filter(t => t.status === 'Complete').length;
+    const ip = pt.filter(t => t.status === 'In Progress').length;
+    result[p.id] = { total: pt.length, complete: c, inProgress: ip, pct: pt.length ? Math.round(c / pt.length * 100) : 0 };
+  });
+  const ac = state.tasks.filter(t => t.status === 'Complete').length;
+  result.overall = { total: state.tasks.length, complete: ac, pct: Math.round(ac / state.tasks.length * 100) };
+  return result;
+}
+
+function cycleStatus(taskId) {
+  const opts = ['Not Started', 'In Progress', 'Complete'];
+  const t = state.tasks.find(t => t.id === taskId);
+  t.status = opts[(opts.indexOf(t.status) + 1) % 3];
+  render();
+}
+function setStatus(taskId, status) {
+  state.tasks.find(t => t.id === taskId).status = status;
+  render();
+}
+function togglePhase(id) { state.expanded[id] = !state.expanded[id]; render(); }
+function selectTask(id) { state.selected = state.selected === id ? null : id; render(); }
+function setFilter(f) { state.filter = f; render(); }
+
+// ââ SVG RING ââ
+function ringSVG(percent, color, size) {
+  size = size || 44;
+  const s = 4, r = (size - s) / 2, c = 2 * Math.PI * r, off = c - (percent / 100) * c;
+  return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#E2E8F0" stroke-width="${s}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${s}"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" stroke-linecap="round"
+      style="transition:stroke-dashoffset 0.5s ease"/>
+  </svg>`;
+}
+
+// ââ GRID ââ
+function gridHTML() {
+  let g = '';
+  for (let i = 0; i < 12; i++) {
+    g += `<div class="grid-col${i === 3 || i === 7 ? ' month-border' : ''}"></div>`;
+  }
+  return `<div class="grid-overlay">${g}</div>`;
+}
+
+function todayHTML() {
+  return todayInRange ? `<div class="today-line" style="left:${todayPct}%"></div>` : '';
+}
+
+// ââ STATUS BADGE ââ
+function badgeHTML(status, taskId) {
+  const cls = status === 'Not Started' ? 'ns' : status === 'In Progress' ? 'ip' : 'cp';
+  return `<button class="status-badge ${cls}" onclick="event.stopPropagation();cycleStatus(${taskId})" title="Click to cycle status">
+    <span class="dot"></span>${status}
+  </button>`;
+}
+
+// ââ RENDER ââ
+function render() {
+  const stats = getStats();
+  const filtered = state.filter === 'All' ? state.tasks : state.tasks.filter(t => t.status === state.filter);
+
+  let html = '';
+
+  // Header
+  html += `<div class="header">
+    <div class="header-left">
+      <div class="header-logo">G</div>
+      <div>
+        <div class="header-title">Goldfinch Cloud Solutions</div>
+        <div class="header-subtitle">3-Month Engagement Timeline</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <strong>Fractional Alliances Leadership</strong><br>
+      March 9 â May 31, 2026 &nbsp;Â·&nbsp; Week ${currentWeek} of 12<br>
+      ISV Accelerators Ã Goldfinch
+    </div>
+  </div>`;
+
+  // Summary cards
+  html += `<div class="summary-grid">`;
+  // Overall
+  html += `<div class="summary-card">
+    <div class="ring-wrap">${ringSVG(stats.overall.pct, '#052D60')}
+      <span class="ring-label" style="color:#052D60">${stats.overall.pct}%</span>
+    </div>
+    <div>
+      <div class="card-meta-label">Overall</div>
+      <div class="card-meta-value">${stats.overall.complete}/${stats.overall.total}</div>
+      <div class="card-meta-detail">deliverables done</div>
+    </div>
+  </div>`;
+  // Per phase
+  phases.forEach(p => {
+    const s = stats[p.id];
+    html += `<div class="summary-card">
+      <div class="ring-wrap">${ringSVG(s.pct, p.color)}
+        <span class="ring-label" style="color:${p.color}">${s.pct}%</span>
+      </div>
+      <div>
+        <div class="card-meta-label">${p.shortName}</div>
+        <div class="card-meta-sm">${s.complete} done Â· ${s.inProgress} active</div>
+        <div class="card-meta-detail">${p.dates}</div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Legend + filter
+  html += `<div class="toolbar"><div class="legend">`;
+  phases.forEach(p => {
+    html += `<div class="legend-item"><span class="legend-swatch" style="background:${p.color}"></span>${p.name}</div>`;
+  });
+  html += `<div class="legend-item"><span class="legend-diamond"></span>Milestone</div></div>`;
+  html += `<div class="filter-bar">`;
+  ['All', 'Not Started', 'In Progress', 'Complete'].forEach(f => {
+    html += `<button class="filter-btn${state.filter === f ? ' active' : ''}" onclick="setFilter('${f}')">${f}</button>`;
+  });
+  html += `</div></div>`;
+
+  // Chart
+  html += `<div class="chart">`;
+  // Header
+  html += `<div class="chart-header">
+    <div class="label-col">Deliverable</div>
+    <div>
+      <div class="month-row">
+        <div class="month-cell">March</div><div class="month-cell">April</div><div class="month-cell">May</div>
+      </div>
+      <div class="week-row">`;
+  for (let w = 1; w <= 12; w++) html += `<div class="week-cell">W${w}</div>`;
+  html += `</div></div></div>`;
+
+  // Phase groups
+  phases.forEach(phase => {
+    const pTasks = filtered.filter(t => t.phase === phase.id);
+    const pMilestones = milestones.filter(m => m.phase === phase.id);
+    const exp = state.expanded[phase.id];
+    const phStart = pct(dayOffset(phase.start));
+    const phWidth = pct(dayOffset(phase.end) - dayOffset(phase.start));
+
+    html += `<div class="phase-group">`;
+
+    // Phase header
+    html += `<div class="phase-header" onclick="togglePhase(${phase.id})" style="background:${phase.color}0D">
+      <div class="phase-label-cell">
+        <span class="phase-dot" style="background:${phase.color}"></span>
+        ${phase.name}
+        <span class="phase-dates">${phase.dates}</span>
+        <span class="phase-chevron${exp ? '' : ' collapsed'}">â¼</span>
+      </div>
+      <div class="bar-area">
+        ${gridHTML()}
+        <div class="phase-bar" style="left:${phStart}%;width:${phWidth}%;background:${phase.color}"></div>
+        ${todayHTML()}
+      </div>
+    </div>`;
+
+    // Task rows
+    const maxH = exp ? (pTasks.length + pMilestones.length) * 44 + 10 : 0;
+    html += `<div class="task-rows" style="max-height:${maxH}px">`;
+
+    pTasks.forEach(task => {
+      const tStart = pct(dayOffset(task.start));
+      const tWidth = Math.max(pct(dayOffset(task.end) - dayOffset(task.start)), 1.5);
+      const sel = state.selected === task.id;
+      const statusCls = task.status === 'Not Started' ? 'not-started' : task.status === 'Complete' ? 'complete' : '';
+      const barLabel = tWidth > 6 ? `${task.status === 'Complete' ? 'â ' : ''}${fmtDate(task.start)} â ${fmtDate(task.end)}` : '';
+
+      html += `<div class="task-row${sel ? ' selected' : ''}" onclick="selectTask(${task.id})">
+        <div class="task-label-cell">
+          <span class="task-num" style="background:${phase.color}">${task.num}</span>
+          <span class="task-name">${task.name}</span>
+          ${badgeHTML(task.status, task.id)}
+        </div>
+        <div class="bar-area-task">
+          ${gridHTML()}
+          <div class="task-bar ${statusCls}" style="left:${tStart}%;width:${tWidth}%;background:${phase.color}">
+            ${barLabel}
+          </div>
+          ${todayHTML()}
+        </div>
+      </div>`;
+    });
+
+    // Milestones
+    pMilestones.forEach(m => {
+      const mPct = pct(dayOffset(m.date));
+      html += `<div class="task-row">
+        <div class="milestone-label">
+          <span class="milestone-diamond-sm"></span>
+          ${m.name}
+          <span class="milestone-date">${fmtDate(m.date)}</span>
+        </div>
+        <div class="bar-area-task">
+          ${gridHTML()}
+          <div class="milestone-diamond" style="left:${mPct}%"></div>
+          ${todayHTML()}
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+
+  // Detail panel
+  if (state.selected) {
+    const task = state.tasks.find(t => t.id === state.selected);
+    const phase = phases.find(p => p.id === task.phase);
+    const statuses = ['Not Started', 'In Progress', 'Complete'];
+    const clsMap = { 'Not Started': 'ns', 'In Progress': 'ip', 'Complete': 'cp' };
+
+    html += `<div class="detail-panel">
+      <div class="detail-left">
+        <span class="detail-num" style="background:${phase.color}">${task.num}</span>
+        <div>
+          <div class="detail-name">${task.name}</div>
+          <div class="detail-sub">${phase.name} &nbsp;Â·&nbsp; ${fmtDate(task.start)} â ${fmtDate(task.end)}</div>
+        </div>
+      </div>
+      <div class="detail-actions">`;
+    statuses.forEach(s => {
+      const active = task.status === s;
+      const cls = active ? `active-${clsMap[s]}` : 'inactive';
+      html += `<button class="detail-btn ${cls}" onclick="setStatus(${task.id},'${s}')">${s}</button>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Footer
+  html += `<div class="footer">
+    <span>ISV Accelerators â Goldfinch Cloud Solutions Engagement</span>
+    <span>${todayInRange ? `<span class="today-indicator">â TODAY: Week ${currentWeek}</span>&nbsp;&nbsp;Â·&nbsp;&nbsp;` : ''}Click status badges to update</span>
+  </div>`;
+
+  document.getElementById('app').innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
