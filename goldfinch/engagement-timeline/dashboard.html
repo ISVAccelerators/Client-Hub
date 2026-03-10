@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Goldfinch Cloud Solutions â Interactive Engagement Dashboard</title>
+<title>Goldfinch Cloud Solutions &#8212; Interactive Engagement Dashboard</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -237,21 +237,21 @@
 <div id="app"></div>
 
 <script>
-// ââ DATA ââ
+// -- DATA --
 const ENGAGEMENT_START = new Date(2026, 2, 9);
 const ENGAGEMENT_END   = new Date(2026, 4, 31);
 const TOTAL_DAYS = Math.ceil((ENGAGEMENT_END - ENGAGEMENT_START) / 86400000);
 
 const phases = [
-  { id: 1, name: 'Phase 1: Foundation', shortName: 'Foundation', dates: 'Mar 9 â 31', color: '#0D9DDA', start: '2026-03-09', end: '2026-03-31' },
-  { id: 2, name: 'Phase 2: Build', shortName: 'Build', dates: 'Apr 1 â 30', color: '#052D60', start: '2026-04-01', end: '2026-04-30' },
-  { id: 3, name: 'Phase 3: Activate & Measure', shortName: 'Activate', dates: 'May 1 â 31', color: '#FE5D2E', start: '2026-05-01', end: '2026-05-31' },
+  { id: 1, name: 'Phase 1: Foundation', shortName: 'Foundation', dates: 'Mar 9 \u2013 31', color: '#0D9DDA', start: '2026-03-09', end: '2026-03-31' },
+  { id: 2, name: 'Phase 2: Build', shortName: 'Build', dates: 'Apr 1 \u2013 30', color: '#052D60', start: '2026-04-01', end: '2026-04-30' },
+  { id: 3, name: 'Phase 3: Activate & Measure', shortName: 'Activate', dates: 'May 1 \u2013 31', color: '#FE5D2E', start: '2026-05-01', end: '2026-05-31' },
 ];
 
 const tasks = [
   { id: 1, num: 1, name: 'Asset Audit', start: '2026-03-09', end: '2026-03-13', phase: 1, status: 'Not Started' },
   { id: 2, num: 2, name: 'SF AE Territory Map', start: '2026-03-16', end: '2026-03-18', phase: 1, status: 'Not Started' },
-  { id: 3, num: 3, name: 'Competitive Positioning â Rootstock', start: '2026-03-20', end: '2026-03-31', phase: 1, status: 'Not Started' },
+  { id: 3, num: 3, name: 'Competitive Positioning \u2014 Rootstock', start: '2026-03-20', end: '2026-03-31', phase: 1, status: 'Not Started' },
   { id: 4, num: 4, name: 'AE Outreach Playbook', start: '2026-04-01', end: '2026-04-30', phase: 2, status: 'Not Started' },
   { id: 5, num: 5, name: 'SI Partner Target List', start: '2026-04-01', end: '2026-04-30', phase: 2, status: 'Not Started' },
   { id: 6, num: 6, name: 'Co-Sell Battle Card', start: '2026-04-07', end: '2026-04-30', phase: 2, status: 'Not Started' },
@@ -266,7 +266,7 @@ const milestones = [
   { name: 'Final Readout & Go/No-Go', date: '2026-05-31', phase: 3 },
 ];
 
-// ââ HELPERS ââ
+// -- HELPERS --
 function dayOffset(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return Math.max(0, Math.ceil((d - ENGAGEMENT_START) / 86400000));
@@ -283,7 +283,7 @@ const todayPct = pct(todayOff);
 const todayInRange = todayOff >= 0 && todayOff <= TOTAL_DAYS;
 const currentWeek = Math.min(12, Math.max(1, Math.ceil(todayOff / 7)));
 
-// ââ STATE ââ
+// -- STATE --
 let state = {
   tasks: tasks.map(t => ({...t})),
   expanded: { 1: true, 2: true, 3: true },
@@ -318,7 +318,7 @@ function togglePhase(id) { state.expanded[id] = !state.expanded[id]; render(); }
 function selectTask(id) { state.selected = state.selected === id ? null : id; render(); }
 function setFilter(f) { state.filter = f; render(); }
 
-// ââ SVG RING ââ
+// -- SVG RING --
 function ringSVG(percent, color, size) {
   size = size || 44;
   const s = 4, r = (size - s) / 2, c = 2 * Math.PI * r, off = c - (percent / 100) * c;
@@ -330,7 +330,7 @@ function ringSVG(percent, color, size) {
   </svg>`;
 }
 
-// ââ GRID ââ
+// -- GRID --
 function gridHTML() {
   let g = '';
   for (let i = 0; i < 12; i++) {
@@ -343,7 +343,7 @@ function todayHTML() {
   return todayInRange ? `<div class="today-line" style="left:${todayPct}%"></div>` : '';
 }
 
-// ââ STATUS BADGE ââ
+// -- STATUS BADGE --
 function badgeHTML(status, taskId) {
   const cls = status === 'Not Started' ? 'ns' : status === 'In Progress' ? 'ip' : 'cp';
   return `<button class="status-badge ${cls}" onclick="event.stopPropagation();cycleStatus(${taskId})" title="Click to cycle status">
@@ -351,7 +351,7 @@ function badgeHTML(status, taskId) {
   </button>`;
 }
 
-// ââ RENDER ââ
+// -- RENDER --
 function render() {
   const stats = getStats();
   const filtered = state.filter === 'All' ? state.tasks : state.tasks.filter(t => t.status === state.filter);
@@ -369,8 +369,8 @@ function render() {
     </div>
     <div class="header-meta">
       <strong>Fractional Alliances Leadership</strong><br>
-      March 9 â May 31, 2026 &nbsp;Â·&nbsp; Week ${currentWeek} of 12<br>
-      ISV Accelerators Ã Goldfinch
+      March 9 &#8211; May 31, 2026 &nbsp;&#183;&nbsp; Week ${currentWeek} of 12<br>
+      ISV Accelerators &#215; Goldfinch
     </div>
   </div>`;
 
@@ -396,7 +396,7 @@ function render() {
       </div>
       <div>
         <div class="card-meta-label">${p.shortName}</div>
-        <div class="card-meta-sm">${s.complete} done Â· ${s.inProgress} active</div>
+        <div class="card-meta-sm">${s.complete} done &#183; ${s.inProgress} active</div>
         <div class="card-meta-detail">${p.dates}</div>
       </div>
     </div>`;
@@ -444,7 +444,7 @@ function render() {
         <span class="phase-dot" style="background:${phase.color}"></span>
         ${phase.name}
         <span class="phase-dates">${phase.dates}</span>
-        <span class="phase-chevron${exp ? '' : ' collapsed'}">â¼</span>
+        <span class="phase-chevron${exp ? '' : ' collapsed'}">&#9660;</span>
       </div>
       <div class="bar-area">
         ${gridHTML()}
@@ -462,7 +462,7 @@ function render() {
       const tWidth = Math.max(pct(dayOffset(task.end) - dayOffset(task.start)), 1.5);
       const sel = state.selected === task.id;
       const statusCls = task.status === 'Not Started' ? 'not-started' : task.status === 'Complete' ? 'complete' : '';
-      const barLabel = tWidth > 6 ? `${task.status === 'Complete' ? 'â ' : ''}${fmtDate(task.start)} â ${fmtDate(task.end)}` : '';
+      const barLabel = tWidth > 6 ? `${task.status === 'Complete' ? '&#10003;' : ''}${fmtDate(task.start)} &#8211; ${fmtDate(task.end)}` : '';
 
       html += `<div class="task-row${sel ? ' selected' : ''}" onclick="selectTask(${task.id})">
         <div class="task-label-cell">
@@ -514,7 +514,7 @@ function render() {
         <span class="detail-num" style="background:${phase.color}">${task.num}</span>
         <div>
           <div class="detail-name">${task.name}</div>
-          <div class="detail-sub">${phase.name} &nbsp;Â·&nbsp; ${fmtDate(task.start)} â ${fmtDate(task.end)}</div>
+          <div class="detail-sub">${phase.name} &nbsp;&#183;&nbsp; ${fmtDate(task.start)} &#8211; ${fmtDate(task.end)}</div>
         </div>
       </div>
       <div class="detail-actions">`;
@@ -528,8 +528,8 @@ function render() {
 
   // Footer
   html += `<div class="footer">
-    <span>ISV Accelerators â Goldfinch Cloud Solutions Engagement</span>
-    <span>${todayInRange ? `<span class="today-indicator">â TODAY: Week ${currentWeek}</span>&nbsp;&nbsp;Â·&nbsp;&nbsp;` : ''}Click status badges to update</span>
+    <span>ISV Accelerators &#8212; Goldfinch Cloud Solutions Engagement</span>
+    <span>${todayInRange ? `<span class="today-indicator">&#9679; TODAY: Week ${currentWeek}</span>&nbsp;&nbsp;&#183;&nbsp;&nbsp;` : ''}Click status badges to update</span>
   </div>`;
 
   document.getElementById('app').innerHTML = html;
